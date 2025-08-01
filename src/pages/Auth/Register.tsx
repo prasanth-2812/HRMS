@@ -46,7 +46,7 @@ const Register: React.FC = () => {
       <main className="oh-auth">
         <div className="oh-auth-card">
           <h1 className="oh-onboarding-card__title">Create Account</h1>
-          <p className="auth-subtitle">Join Horilla HRMS to get started.</p>
+          <p className="auth-subtitle">Join SYNC HRMS to get started.</p>
           
           <form onSubmit={handleSubmit} className="oh-form-group">
             {error && (
@@ -100,7 +100,7 @@ const Register: React.FC = () => {
                 id="email"
                 name="email"
                 className="oh-input"
-                placeholder="e.g. john.doe@horilla.com"
+                placeholder="e.g. john.doe@SYNC.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -201,7 +201,7 @@ const Register: React.FC = () => {
         <div className="auth-logo-container">
           <img 
             src="/logo.svg" 
-            alt="Horilla" 
+            alt="SYNC" 
             className="auth-logo"
           />
         </div>

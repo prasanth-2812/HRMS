@@ -1,37 +1,73 @@
-import React from 'react';
-import QuickActionFab from '../../components/UI/QuickActionFab';
-import { useQuickActions } from '../../hooks/useQuickActions';
+import React, { useState, useEffect } from 'react';
+import Sidebar from '../../components/Layout/Sidebar';
+import Navbar from '../../components/Layout/Navbar'; // Import Navbar
+import { SidebarProvider, useSidebar } from '../../contexts/SidebarContext';
+import { CompanyInfo, UserPermissions, MenuItem } from '../../utils/mockSidebarData';
 import './Dashboard.css';
+import '../../main.css'; // Global styles for the dashboard and app
 
-const Dashboard: React.FC = () => {
-  // Use the quick actions hook with feature flags
-  const { actions } = useQuickActions({
-    hasHelpdesk: true,
-    hasAsset: true,
-    hasPayroll: true,
-    hasLeave: true,
-    hasAttendance: true
-  });
+// Add pageTitle prop to DashboardProps
+interface DashboardProps {
+  companyInfo: CompanyInfo;
+  userPermissions: UserPermissions;
+  menuItems: MenuItem[];
+  pageTitle: string; // New prop for the page title
+}
+
+// Mock components for the attendance modal
+const AttendanceRequestModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <h3>Attendance Request</h3>
+        <p>Attendance request modal content...</p>
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+};
+
+// Internal component that can use the sidebar context
+const DashboardContent: React.FC<DashboardProps> = ({ companyInfo, userPermissions, menuItems, pageTitle }) => {
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+  const { isCollapsed } = useSidebar(); // Get sidebar collapse state
+
+  // Add any existing state and useEffect logic here...
+  useEffect(() => {
+    // Dashboard initialization logic
+  }, []);
 
   return (
-    <div className="oh-wrapper">
-      <div className="oh-dashboard row" id="dashboard">
-        {/* Left side - Main content */}
-        <div className="oh-dashboard__left col-12 col-sm-12 col-md-12 col-lg-9">
-          <div className="oh-dashboard__cards row">
-            {/* Statistics Cards */}
-            <div className="col-12 col-sm-12 col-md-6 col-lg-4">
-              <div className="oh-card-dashboard oh-card-dashboard--success tile">
-                <div className="oh-card-dashboard__header">
-                  <span className="oh-card-dashboard__title">New Joining Today</span>
-                </div>
-                <div className="oh-card-dashboard__body">
-                  <div className="oh-card-dashboard__counts">
-                    <span className="oh-card-dashboard__count">3</span>
+    <div className="dashboard-container">
+      <Sidebar
+        companyInfo={companyInfo}
+        userPermissions={userPermissions}
+        menuItems={menuItems}
+      />
+      <div className={`dashboard-main ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
+        {/* Pass the pageTitle prop to Navbar */}
+        <Navbar pageTitle={pageTitle} />
+        <div className="dashboard-content">
+          <div className="oh-wrapper">
+            <div className="oh-dashboard row" id="dashboard">
+              {/* Left side - Main content */}
+              <div className="oh-dashboard__left col-12 col-sm-12 col-md-12 col-lg-9">
+                <div className="oh-dashboard__cards row">
+                  {/* Statistics Cards */}
+                  <div className="col-12 col-sm-12 col-md-6 col-lg-4">
+                    <div className="oh-card-dashboard oh-card-dashboard--success tile">
+                      <div className="oh-card-dashboard__header">
+                        <span className="oh-card-dashboard__title">New Joining Today</span>
+                      </div>
+                      <div className="oh-card-dashboard__body">
+                        <div className="oh-card-dashboard__counts">
+                          <span className="oh-card-dashboard__count">3</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
 
             <div className="col-12 col-sm-12 col-md-6 col-lg-4">
               <div className="oh-card-dashboard oh-card-dashboard--warning tile">
@@ -196,10 +232,24 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-      
-      {/* Quick Action FAB */}
-      <QuickActionFab actions={actions} />
     </div>
+        </div>
+      </div>
+      <AttendanceRequestModal isOpen={isAttendanceModalOpen} onClose={() => setIsAttendanceModalOpen(false)} />
+    </div>
+  );
+};
+
+const Dashboard: React.FC<DashboardProps> = ({ companyInfo, userPermissions, menuItems, pageTitle }) => {
+  return (
+    <SidebarProvider>
+      <DashboardContent 
+        companyInfo={companyInfo}
+        userPermissions={userPermissions}
+        menuItems={menuItems}
+        pageTitle={pageTitle}
+      />
+    </SidebarProvider>
   );
 };
 

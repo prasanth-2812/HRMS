@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
         <div className="login-header">
           <img 
             src="/logo.svg" 
-            alt="Horilla" 
+            alt="SYNC" 
             className="login-logo"
           />
           <h1 className="login-title">Sign In</h1>

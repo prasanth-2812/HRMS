@@ -1,276 +1,192 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthContext } from '../contexts/AuthContext';
-import { useSidebar } from '../contexts/SidebarContext';
-import ProtectedRoute from './ProtectedRoute';
-
-// Auth Pages
-import Login from '../pages/Auth/Login';
-import Register from '../pages/Auth/Register';
-
-// Main Layout
-import Sidebar from '../components/Layout/Sidebar';
-import Header from '../components/Layout/Header';
-import Footer from '../components/Layout/Footer';
-
-// Dashboard
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Dashboard from '../pages/Dashboard/Dashboard';
-
-// Employee Management
+import Login from '../pages/Auth/Login';
 import EmployeeList from '../pages/Employees/EmployeeList';
-import EmployeeProfile from '../pages/Employees/EmployeeProfile';
-
-// Recruitment
 import RecruitmentDashboard from '../pages/Recruitment/RecruitmentDashboard';
-import JobPostings from '../pages/Recruitment/JobPostings';
-import Candidates from '../pages/Recruitment/Candidates';
+import ProtectedRoute from './ProtectedRoute';
+import { useAuthContext } from '../contexts/AuthContext';
 
-// Other modules
-import OnboardingPlans from '../pages/Onboarding/OnboardingPlans';
-import PayrollOverview from '../pages/Payroll/PayrollOverview';
-import SalarySlips from '../pages/Payroll/SalarySlips';
-import AttendanceRecords from '../pages/Attendance/AttendanceRecords';
-import LeaveApplications from '../pages/Leave/LeaveApplications';
-import PerformanceReviews from '../pages/Performance/PerformanceReviews';
-import OffboardingProcess from '../pages/Offboarding/OffboardingProcess';
-import AssetManagement from '../pages/Assets/AssetManagement';
-import HelpDeskTickets from '../pages/HelpDesk/HelpDeskTickets';
-import SystemSettings from '../pages/Configuration/SystemSettings';
-import ProjectManagement from '../pages/Project/ProjectManagement';
+import { CompanyInfo, UserPermissions, MenuItem } from '../utils/mockSidebarData';
 
-const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { toggleSidebar, isCollapsed } = useSidebar();
-  
-  return (
-    <>
-      <Sidebar />
-      <div className={`main-content ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
-        <Header toggleSidebar={toggleSidebar} />
-        <div className="page-content">
-          {children}
-        </div>
-        <Footer />
-      </div>
-    </>
-  );
-};
+interface AppRoutesProps {
+  companyInfo: CompanyInfo;
+  userPermissions: UserPermissions;
+  menuItems: MenuItem[];
+}
 
-const AppRoutes: React.FC = () => {
+const AppRoutes: React.FC<AppRoutesProps> = ({ companyInfo, userPermissions, menuItems }) => {
   const { isAuthenticated } = useAuthContext();
+  const location = useLocation();
+
+  // Simple mapping from path to title for demonstration
+  const getPageTitle = (pathname: string): string => {
+    switch (pathname) {
+      case '/': return 'Dashboard';
+      case '/dashboard': return 'Dashboard';
+      case '/employees/list': return 'Employees List';
+      case '/recruitments/job-postings': return 'Job Postings';
+      case '/recruitments/candidates': return 'Candidates';
+      case '/onboarding/plans': return 'Onboarding Plans';
+      case '/employees/profile': return 'Employee Profile';
+      case '/payroll/overview': return 'Payroll Overview';
+      case '/payroll/slips': return 'Salary Slips';
+      case '/attendances/records': return 'Attendances'; // This matches the original HTML's title in the Navbar
+      case '/leave/applications': return 'Leave Applications';
+      case '/performance/reviews': return 'Performance Reviews';
+      case '/offboarding/process': return 'Offboarding Process';
+      case '/assets/management': return 'Asset Management';
+      case '/helpdesk/tickets': return 'Help Desk Tickets';
+      case '/project/management': return 'Project Management';
+      case '/configuration/multiple-approvals': return 'Multiple Approvals';
+      case '/configuration/mail-templates': return 'Mail Templates';
+      case '/configuration/mail-automations': return 'Mail Automations';
+      case '/configuration/holidays': return 'Holidays';
+      case '/configuration/company-leaves': return 'Company Leaves';
+      case '/configuration/restrict-leaves': return 'Restrict Leaves';
+      default: return 'Horilla'; // Default title
+    }
+  };
+
+  const currentPageTitle = getPageTitle(location.pathname);
 
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route 
-        path="/login" 
-        element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} 
-      />
-      <Route 
-        path="/register" 
-        element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" replace />} 
-      />
-
+      <Route path="/login" element={<Login />} />
       {/* Protected Routes */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <Navigate to="/dashboard" replace />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <Dashboard />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/" element={
+        <ProtectedRoute>
+          <Dashboard
+            companyInfo={companyInfo}
+            userPermissions={userPermissions}
+            menuItems={menuItems}
+            pageTitle={currentPageTitle} // Pass pageTitle
+          />
+        </ProtectedRoute>
+      } />
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Dashboard
+            companyInfo={companyInfo}
+            userPermissions={userPermissions}
+            menuItems={menuItems}
+            pageTitle={currentPageTitle} // Pass pageTitle
+          />
+        </ProtectedRoute>
+      } />
+      {/*
+        For other pages, you'd render their specific components directly
+        and they would implicitly use the Navbar's dynamic pageTitle or have their own Navbar.
+        If Navbar is only inside Dashboard, all sub-routes here would not have a Navbar unless explicitly added.
+        Since Navbar is part of the layout, it's typically rendered once in App.tsx or a main layout component.
+        For simplicity, I'm assuming Dashboard is the main "layout wrapper" for protected routes.
+      */}
+      <Route path="/employees/list" element={
+        <ProtectedRoute>
+          <div>Employees List Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/recruitments/job-postings" element={
+        <ProtectedRoute>
+          <div>Job Postings Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/recruitments/candidates" element={
+        <ProtectedRoute>
+          <div>Candidates Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      {/* ... and all other routes with dummy content as before, ensuring they'd get currentPageTitle somehow */}
+      <Route path="/onboarding/plans" element={
+        <ProtectedRoute>
+          <div>Onboarding Plans Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/employees/profile" element={
+        <ProtectedRoute>
+          <div>Employee Profile Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/payroll/overview" element={
+        <ProtectedRoute>
+          <div>Payroll Overview Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/payroll/slips" element={
+        <ProtectedRoute>
+          <div>Salary Slips Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/attendances/records" element={
+        <ProtectedRoute>
+          <div>Attendance Records Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/leave/applications" element={
+        <ProtectedRoute>
+          <div>Leave Applications Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/performance/reviews" element={
+        <ProtectedRoute>
+          <div>Performance Reviews Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/offboarding/process" element={
+        <ProtectedRoute>
+          <div>Offboarding Process Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/assets/management" element={
+        <ProtectedRoute>
+          <div>Asset Management Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/helpdesk/tickets" element={
+        <ProtectedRoute>
+          <div>Help Desk Tickets Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/project/management" element={
+        <ProtectedRoute>
+          <div>Project Management Page (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
 
-      {/* Employee Management */}
-      <Route
-        path="/employees"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <EmployeeList />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/employees/:id"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <EmployeeProfile />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
+      {/* Configuration Submenus */}
+      <Route path="/configuration/multiple-approvals" element={
+        <ProtectedRoute>
+          <div>Multiple Approvals Config (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/mail-templates" element={
+        <ProtectedRoute>
+          <div>Mail Templates Config (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/mail-automations" element={
+        <ProtectedRoute>
+          <div>Mail Automations Config (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/holidays" element={
+        <ProtectedRoute>
+          <div>Holidays Config (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/company-leaves" element={
+        <ProtectedRoute>
+          <div>Company Leaves Config (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/restrict-leaves" element={
+        <ProtectedRoute>
+          <div>Restrict Leaves Config (Page Title: {currentPageTitle})</div>
+        </ProtectedRoute>
+      } />
 
-      {/* Recruitment */}
-      <Route
-        path="/recruitment"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <RecruitmentDashboard />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/recruitment/jobs"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <JobPostings />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/recruitment/candidates"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <Candidates />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Other Module Routes */}
-      <Route
-        path="/onboarding"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <OnboardingPlans />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/payroll"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <PayrollOverview />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/payroll/salary-slips"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <SalarySlips />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/attendance"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <AttendanceRecords />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/leave"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <LeaveApplications />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/performance"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <PerformanceReviews />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/offboarding"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <OffboardingProcess />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/assets"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <AssetManagement />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/helpdesk"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <HelpDeskTickets />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/projects"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <ProjectManagement />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <SystemSettings />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Catch all route */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* Catch-all for 404 Not Found pages (optional) */}
+      <Route path="*" element={<div>404 Not Found</div>} />
     </Routes>
   );
 };

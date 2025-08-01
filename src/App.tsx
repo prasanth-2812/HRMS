@@ -1,26 +1,27 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import { SidebarProvider } from './contexts/SidebarContext';
-import { ModalProvider } from './contexts/ModalContext';
+import { AuthProvider } from './contexts/AuthContext';
 import AppRoutes from './routes/AppRoutes';
-import ModalManager from './components/ModalManager';
 
-function App() {
+// Import your mock data
+import { mockCompanyInfo, mockUserPermissions, mockSidebarMenuItems } from './utils/mockSidebarData';
+
+const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
         <SidebarProvider>
-          <ModalProvider>
-            <div className="app-layout">
-              <AppRoutes />
-              <ModalManager />
-            </div>
-          </ModalProvider>
+          {/* AppRoutes will now receive the mock data as props */}
+          <AppRoutes
+            companyInfo={mockCompanyInfo}
+            userPermissions={mockUserPermissions}
+            menuItems={mockSidebarMenuItems}
+          />
         </SidebarProvider>
       </AuthProvider>
     </Router>
   );
-}
+};
 
 export default App;

@@ -1,48 +1,28 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 interface GenericModalProps {
   isOpen: boolean;
+  title: string;
+  children: ReactNode;
   onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  showCloseButton?: boolean;
 }
 
 const GenericModal: React.FC<GenericModalProps> = ({
   isOpen,
-  onClose,
   title,
   children,
-  size = 'md',
-  showCloseButton = true
+  onClose
 }) => {
   if (!isOpen) return null;
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className={`generic-modal modal-${size}`}>
-        {(title || showCloseButton) && (
-          <div className="modal-header">
-            {title && <h3 className="modal-title">{title}</h3>}
-            {showCloseButton && (
-              <button 
-                className="modal-close-button" 
-                onClick={onClose}
-                aria-label="Close"
-              >
-                ×
-              </button>
-            )}
-          </div>
-        )}
-        <div className="modal-content">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>{title}</h3>
+          <button onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">
           {children}
         </div>
       </div>

@@ -1,4 +1,4 @@
-# Horilla HRMS Frontend
+# SYNC HRMS Frontend
 
 A comprehensive Human Resource Management System built with React and TypeScript.
 
