@@ -1,7 +1,18 @@
 import React from 'react';
+import QuickActionFab from '../../components/UI/QuickActionFab';
+import { useQuickActions } from '../../hooks/useQuickActions';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
+  // Use the quick actions hook with feature flags
+  const { actions } = useQuickActions({
+    hasHelpdesk: true,
+    hasAsset: true,
+    hasPayroll: true,
+    hasLeave: true,
+    hasAttendance: true
+  });
+
   return (
     <div className="oh-wrapper">
       <div className="oh-dashboard row" id="dashboard">
@@ -185,6 +196,11 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Quick Action FAB */}
+      <QuickActionFab actions={actions} />
     </div>
   );
-};export default Dashboard;
+};
+
+export default Dashboard;
